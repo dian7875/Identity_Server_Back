@@ -1,4 +1,5 @@
 
+using Identity.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -13,6 +14,7 @@ builder.Services.AddIdentityServer()
     .AddDeveloperSigningCredential();
 
 builder.Services.AddControllers();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Agregar JWT Bearer Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
