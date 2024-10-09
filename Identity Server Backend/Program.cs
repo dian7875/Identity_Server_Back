@@ -8,13 +8,26 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Cargar configuración
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", builder =>
+    {
+        builder
+            .WithOrigins("https://indentity-server-login.vercel.app") 
+            .AllowAnyHeader()
+            .AllowAnyMethod() 
+            .AllowCredentials();
+    });
+});
+
+
+// Cargar configuraciï¿½n
 var configuration = builder.Configuration;
 
 // Agregar infraestructura y contexto de base de datos
 builder.Services.AddInfrastructure(configuration);
 
-// Registro de servicios de aplicación
+// Registro de servicios de aplicaciï¿½n
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRolService, RolService>();
 
@@ -33,14 +46,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.Authority = "https://localhost:7147";  // La URL de tu IdentityServer
-        options.RequireHttpsMetadata = false;          // Solo para desarrollo, en producción deberías usar HTTPS
+        options.RequireHttpsMetadata = false;          // Solo para desarrollo, en producciï¿½n deberï¿½as usar HTTPS
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,                      // Validar quién emite el token
+            ValidateIssuer = true,                      // Validar quiï¿½n emite el token
             ValidateAudience = false,                   // No es necesario validar la audiencia en este ejemplo
             ValidateLifetime = true,                    // Validar que el token no haya expirado
             ValidateIssuerSigningKey = true,            // Validar la firma del emisor
-            ValidIssuer = "https://localhost:7147",     // El emisor del token, que debe coincidir con el servidor de autorización
+            ValidIssuer = "https://localhost:7147",     // El emisor del token, que debe coincidir con el servidor de autorizaciï¿½n
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("YourSecretKey"))  // La clave usada para firmar los tokens
         };
     });
@@ -54,6 +67,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 app.UseHttpsRedirection();
+app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
 app.UseAuthorization();
 
