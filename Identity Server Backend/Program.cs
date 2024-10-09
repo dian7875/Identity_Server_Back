@@ -1,10 +1,22 @@
 
-using Identity.Services;
+using Identity.Application.Interfaces;
+using Identity.Application.Services;
+using Identity.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Cargar configuración
+var configuration = builder.Configuration;
+
+// Agregar infraestructura y contexto de base de datos
+builder.Services.AddInfrastructure(configuration);
+
+// Registro de servicios de aplicación
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRolService, RolService>();
 
 // Add services to the container.
 builder.Services.AddIdentityServer()
@@ -14,7 +26,7 @@ builder.Services.AddIdentityServer()
     .AddDeveloperSigningCredential();
 
 builder.Services.AddControllers();
-builder.Services.AddScoped<IUserService, UserService>();
+
 
 // Agregar JWT Bearer Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
