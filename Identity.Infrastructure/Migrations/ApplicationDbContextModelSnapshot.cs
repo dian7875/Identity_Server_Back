@@ -76,8 +76,7 @@ namespace Identity.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RolId")
-                        .IsUnique();
+                    b.HasIndex("RolId");
 
                     b.ToTable("Users");
                 });
@@ -85,8 +84,8 @@ namespace Identity.Infrastructure.Migrations
             modelBuilder.Entity("Identity.Domain.entities.User", b =>
                 {
                     b.HasOne("Identity.Domain.entities.Rol", "Rol")
-                        .WithOne("User")
-                        .HasForeignKey("Identity.Domain.entities.User", "RolId")
+                        .WithMany("Users")
+                        .HasForeignKey("RolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -95,7 +94,7 @@ namespace Identity.Infrastructure.Migrations
 
             modelBuilder.Entity("Identity.Domain.entities.Rol", b =>
                 {
-                    b.Navigation("User");
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

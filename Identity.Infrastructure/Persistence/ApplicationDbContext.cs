@@ -20,11 +20,11 @@ namespace Identity.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configurar relación uno a uno entre User y Rol
+            // Configurar relación uno a MUCHOS entre User y Rol
             modelBuilder.Entity<User>()
-                .HasOne(u => u.Rol)
-                .WithOne(r => r.User)
-                .HasForeignKey<User>(u => u.RolId);
+            .HasOne(u => u.Rol)
+            .WithMany(r => r.Users)   
+            .HasForeignKey(u => u.RolId);
         }
     }
 }

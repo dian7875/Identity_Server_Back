@@ -5,7 +5,7 @@
 namespace Identity.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -53,8 +53,7 @@ namespace Identity.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Users_RolId",
                 table: "Users",
-                column: "RolId",
-                unique: true);
+                column: "RolId");
         }
 
         /// <inheritdoc />
