@@ -13,12 +13,17 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin", builder =>
     {
         builder
-            .WithOrigins("https://indentity-server-login.vercel.app") 
+            .WithOrigins("https://indentity-server-login.vercel.app",
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "https://user-manage-snowy.vercel.app")
             .AllowAnyHeader()
-            .AllowAnyMethod() 
+            .AllowAnyMethod()
             .AllowCredentials();
     });
 });
+
+
 
 
 // Cargar configuraci�n
