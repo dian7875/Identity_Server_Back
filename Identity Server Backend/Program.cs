@@ -73,6 +73,8 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowSpecificOrigin");
+
+app.UseIdentityServer();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -82,10 +84,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
 
 app.MapControllers();
 

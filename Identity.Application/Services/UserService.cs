@@ -130,4 +130,27 @@ public class UserService : IUserService
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<IEnumerable<UserDto>> GetUserAsync(int skip, int limit)
+    {
+        var users = await _context.Users
+            .OrderBy(u => u.Id) // Asegura un orden consistente
+            .Skip(skip)
+            .Take(limit)
+            .Select(u => new UserDto
+            {
+                Id = u.Id,
+                Cedula = u.Cedula,
+                Name = u.Name,
+                Lastname1 = u.Lastname1,
+                Lastname2 = u.Lastname2,
+                Email = u.Email,
+                Phone = u.Phone,
+                Address = u.Address,
+            
+            })
+            .ToListAsync();
+
+        return users;
+    }
 }

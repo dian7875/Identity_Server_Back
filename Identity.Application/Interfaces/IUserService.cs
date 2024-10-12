@@ -17,6 +17,6 @@ namespace Identity.Application.Interfaces
         Task<string> LoginUser(LoginDto loginDto);
         Task UpdateUserAsync(int id, UserEditDto userEditDto);
         Task DeleteUserAsync(int id);
-        
+        Task<IEnumerable<UserDto>> GetUserAsync(int skip, int limit);
     }
 }

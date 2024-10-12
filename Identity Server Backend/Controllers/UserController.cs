@@ -104,5 +104,13 @@ namespace Identity_Server_Backend.Controllers
             };
             return Ok(profile);
         }
+
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPagedUsers([FromQuery] int skip, [FromQuery] int limit)
+        {
+            var users = await _userService.GetUserAsync(skip, limit);
+            return Ok(users);
+        }
+
     }
 }
