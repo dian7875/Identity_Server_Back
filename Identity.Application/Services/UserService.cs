@@ -11,6 +11,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using Identity.Application.DTOs.User;
 
 
 
@@ -96,23 +97,44 @@ public class UserService : IUserService
     }
 
 
-    public Task<User> GetUserByIdAsync(User user)
+    public async Task<User> GetUserByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        var user = await _context.Users.FindAsync(id);
+        if (user == null) throw new KeyNotFoundException("Usuario no encontrado.");
+        return user;
     }
 
-    public Task<IEnumerable<User>> GetAllUsersAsync()
+    public async Task<IEnumerable<User>> GetAllUsersAsync()
     {
-        throw new NotImplementedException();
+        return await _context.Users.ToListAsync();
     }
 
-    public Task UpdateUserAsync(User user)
+    public async Task UpdateUserAsync(int id, UserEditDto userEditDto)
     {
-        throw new NotImplementedException();
+        var existingUser = await _context.Users.FindAsync(id);
+        if (existingUser == null) throw new KeyNotFoundException("Usuario no encontrado.");
+
+        // Actualiza los datos de usuario
+        existingUser.Cedula = userEditDto.Cedula;
+        existingUser.Name = userEditDto.Name;
+        existingUser.Lastname1 = userEditDto.Lastname1;
+        existingUser.Lastname2 = userEditDto.Lastname2;
+        existingUser.Email = userEditDto.Email;
+        existingUser.Phone = userEditDto.Phone;
+        existingUser.Address = userEditDto.Address;
+
+         
+        await _context.SaveChangesAsync();
     }
 
-    public Task DeleteUserAsync(User user)
+    public async Task DeleteUserAsync(int id)
     {
-        throw new NotImplementedException();
+        //Busca por el id de usurio
+        var user = await _context.Users.FindAsync(id);
+        if (user == null) throw new KeyNotFoundException("Usuario no encontrado.");
+
+        
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
     }
 }
