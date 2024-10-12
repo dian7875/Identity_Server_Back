@@ -13,7 +13,7 @@ namespace Identity.Application.Interfaces
         Task<User> GetUserByIdAsync(User user);
         Task<IEnumerable<User>> GetAllUsersAsync();
         Task<User> RegisterUser(RegisterDto registerDto);
-        Task<string> LoginUser(LoginDto loginDto);
+        Task<LoginResponseDto> LoginUser(LoginDto loginDto);
         Task UpdateUserAsync(User user);
         Task DeleteUserAsync(User user);
         
