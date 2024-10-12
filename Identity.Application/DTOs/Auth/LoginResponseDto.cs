@@ -6,12 +6,9 @@ using System.Threading.Tasks;
 
 namespace Identity.Application.DTOs.Auth
 {
-
-    public class LoginDto
+    public class LoginResponseDto
     {
-        public string Cedula { get; set; }
-        public string Password { get; set; }
-
-        
+        public string token { get; set; }
+        public string SessionId { get; set; }
     }
 }
