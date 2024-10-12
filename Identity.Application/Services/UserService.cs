@@ -52,8 +52,7 @@ public class UserService : IUserService
         await _context.SaveChangesAsync();
         return user;
     }
-
-    public async Task<string> LoginUser(LoginDto loginDto)
+    public async Task<LoginResponseDto> LoginUser(LoginDto loginDto)
     {
         // Buscar al usuario por cédula y cargar el rol relacionado
         var user = await _context.Users
@@ -73,7 +72,7 @@ public class UserService : IUserService
         {
         new Claim(ClaimTypes.Name, user.Name ?? ""),
         new Claim(ClaimTypes.Email, user.Email ?? ""),
-        new Claim(ClaimTypes.Role, user.Rol?.Name ?? "") 
+        new Claim(ClaimTypes.Role, user.Rol?.Name ?? "")
     };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKey"));
@@ -86,7 +85,15 @@ public class UserService : IUserService
             expires: DateTime.Now.AddMinutes(30),
             signingCredentials: creds);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        // Generar un SessionId (por ejemplo, un GUID)
+        var sessionId = Guid.NewGuid().ToString();
+
+        // Retornar tanto el token como el SessionId
+        return new LoginResponseDto
+        {
+            token = new JwtSecurityTokenHandler().WriteToken(token),
+            SessionId = sessionId
+        };
     }
 
 
