@@ -4,14 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Identity.Domain.entities
+namespace Identity.Application.DTOs.Rol
 {
-    public class Rol
+    public class RolResponseDto
     {
         public int Id { get; set; }
         public string Name { get; set; }
-
-        // Relación uno a MUCHOS con User
-        public ICollection<User> Users { get; set; } = new List<User>();
     }
 }
