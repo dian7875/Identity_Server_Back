@@ -46,6 +46,8 @@ public class UserService : IUserService
             Lastname2 = registerDto.Lastname2,
             PasswordHash = HashPassword(registerDto.Password),
             RolId = registerDto.rolId,
+            DateRegistered = DateTime.UtcNow, 
+            IsActive = true
         };
 
         _context.Users.Add(user);
@@ -127,6 +129,26 @@ public class UserService : IUserService
         await _context.SaveChangesAsync();
     }
 
+    public async Task UpdateUserRoleAsync(int userId, int roleId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+        {
+            throw new KeyNotFoundException("Usuario no encontrado.");
+        }
+
+        var rol = await _context.Roles.FindAsync(roleId);
+        if (rol == null)
+        {
+            throw new KeyNotFoundException("Rol no encontrado.");
+        }
+
+        user.RolId = roleId;
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+    }
+
+
     public async Task DeleteUserAsync(int id)
     {
         //Busca por el id de usurio
@@ -136,5 +158,29 @@ public class UserService : IUserService
         
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<StatisticsDto> GetStatisticsAsync()
+    {
+        var totalUsers = await _context.Users.CountAsync();
+        var totalRoles = await _context.Roles.CountAsync();
+
+        return new StatisticsDto
+        {
+            TotalUsers = totalUsers,
+            TotalRoles = totalRoles
+        };
+    }
+
+    public async Task<IEnumerable<RoleUserCountDto>> GetUserCountPerRoleAsync()
+    {
+        return await _context.Roles
+            .Select(r => new RoleUserCountDto
+            {
+                RoleId = r.Id,
+                RoleName = r.Name,
+                UserCount = _context.Users.Count(u => u.RolId == r.Id)
+            })
+            .ToListAsync();
     }
 }
