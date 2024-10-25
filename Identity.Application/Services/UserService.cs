@@ -84,14 +84,11 @@ public class UserService : IUserService
             expires: DateTime.Now.AddMinutes(30),
             signingCredentials: creds);
 
-        // Generar un SessionId (por ejemplo, un GUID)
-        var sessionId = Guid.NewGuid().ToString();
 
         // Retornar tanto el token como el SessionId
         return new LoginResponseDto
         {
-            token = new JwtSecurityTokenHandler().WriteToken(token),
-            SessionId = sessionId
+            token = new JwtSecurityTokenHandler().WriteToken(token)
         };
     }
 
