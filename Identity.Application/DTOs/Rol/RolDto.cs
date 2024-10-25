@@ -9,5 +9,6 @@ namespace Identity.Application.DTOs.Rol
     public class RolDto
     {
         public string Name { get; set; }
+        public string Description { get; set; }
     }
 }
