@@ -26,8 +26,8 @@ namespace Identity_Server_Backend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
-            var loginResponse = await _userService.LoginUser(loginDto);
-            if (loginResponse == null) return Unauthorized("Invalid credentials");
+            var token = await _userService.LoginUser(loginDto);
+            if (token == null) return Unauthorized("Invalid credentials");
 
             var cookieOptions = new CookieOptions
             {
@@ -36,14 +36,8 @@ namespace Identity_Server_Backend.Controllers
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.Now.AddHours(24)
             };
-
-            Response.Cookies.Append("Sid", loginResponse.SessionId, cookieOptions);
-
-            return Ok(new
-            {
-                
-                loginResponse.SessionId
-            });
+            Response.Cookies.Append("jwt", token, cookieOptions);
+            return Ok(new { Token = token });
         }
     }
 }
