@@ -54,7 +54,7 @@ public class UserService : IUserService
         await _context.SaveChangesAsync();
         return user;
     }
-    public async Task<LoginResponseDto> LoginUser(LoginDto loginDto)
+    public async Task<string> LoginUser(LoginDto loginDto)
     {
         // Buscar al usuario por cédula y cargar el rol relacionado
         var user = await _context.Users
@@ -89,10 +89,7 @@ public class UserService : IUserService
 
 
         // Retornar tanto el token como el SessionId
-        return new LoginResponseDto
-        {
-            token = new JwtSecurityTokenHandler().WriteToken(token)
-        };
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
 
