@@ -16,6 +16,9 @@ namespace Identity.Domain.entities
         public string? Address { get; set; }
         public string? Lastname1 { get; set; }
         public string? Lastname2 { get; set; }
+        public DateTime DateRegistered { get; set; } = DateTime.UtcNow; //Obtiene fecha actual de registro
+        //Indica que el usuario está activo al momento de registrarse.
+        public bool IsActive { get; set; } = true;
 
         public string PasswordHash { get; set; }
 

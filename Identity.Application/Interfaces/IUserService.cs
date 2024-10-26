@@ -14,9 +14,11 @@ namespace Identity.Application.Interfaces
         Task<User> GetUserByIdAsync(int id);
         Task<IEnumerable<User>> GetAllUsersAsync();
         Task<User> RegisterUser(RegisterDto registerDto);
-        Task<string> LoginUser(LoginDto loginDto);
+        Task<LoginResponseDto> LoginUser(LoginDto loginDto);
         Task UpdateUserAsync(int id, UserEditDto userEditDto);
         Task DeleteUserAsync(int id);
-        
+        Task UpdateUserRoleAsync(int userId, int roleId);
+        Task<StatisticsDto> GetStatisticsAsync();
+        Task<IEnumerable<RoleUserCountDto>> GetUserCountPerRoleAsync();
     }
 }

@@ -28,26 +28,45 @@ namespace Identity.Application.Services
             return new RolResponseDto
             {
                 Id = rol.Id,
-                Name = rol.Name
+                Name = rol.Name,
+                Description = rol.Description
             };
         }
 
-        public async Task<IEnumerable<RolResponseDto>> GetAllRoles()
+        public async Task<IEnumerable<RolResponseDto>> GetAllRoles(string name = null)
         {
-            return await _context.Roles
+            var query = _context.Roles.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                query = query.Where(r => r.Name.Contains(name));
+            }
+
+            return await query
                 .Select(r => new RolResponseDto
                 {
                     Id = r.Id,
-                    Name = r.Name
+                    Name = r.Name,
+                    Description = r.Description
                 })
                 .ToListAsync();
         }
 
         public async Task<RolResponseDto> CreateRol(RolDto rolDto)
         {
+            var rolExistente = await _context.Roles
+            .FirstOrDefaultAsync(r => r.Name == rolDto.Name);
+
+
+            if (rolExistente != null)
+            {
+                throw new InvalidOperationException($"El rol '{rolDto.Name}' ya existe.");
+            }
+
             var rol = new Rol
             {
-                Name = rolDto.Name
+                Name = rolDto.Name,
+                Description = rolDto.Description
             };
 
             _context.Roles.Add(rol);
@@ -56,7 +75,8 @@ namespace Identity.Application.Services
             return new RolResponseDto
             {
                 Id = rol.Id,
-                Name = rol.Name
+                Name = rol.Name,
+                Description = rol.Description
             };
         }
 
@@ -66,6 +86,7 @@ namespace Identity.Application.Services
             if (rol == null) return;
 
             rol.Name = rolDto.Name;
+            rol.Description = rolDto.Description;
             await _context.SaveChangesAsync();
         }
 
