@@ -1,4 +1,5 @@
 ﻿using Identity.Application.DTOs.Auth;
+using Identity.Application.DTOs.User;
 using Identity.Domain.entities;
 using System;
 using System.Collections.Generic;
@@ -10,12 +11,14 @@ namespace Identity.Application.Interfaces
 {
     public interface IUserService
     {
-        Task<User> GetUserByIdAsync(User user);
+        Task<User> GetUserByIdAsync(int id);
         Task<IEnumerable<User>> GetAllUsersAsync();
         Task<User> RegisterUser(RegisterDto registerDto);
-        Task<string> LoginUser(LoginDto loginDto);
-        Task UpdateUserAsync(User user);
-        Task DeleteUserAsync(User user);
-        
+        Task<LoginResponseDto> LoginUser(LoginDto loginDto);
+        Task UpdateUserAsync(int id, UserEditDto userEditDto);
+        Task DeleteUserAsync(int id);
+        Task UpdateUserRoleAsync(int userId, int roleId);
+        Task<StatisticsDto> GetStatisticsAsync();
+        Task<IEnumerable<RoleUserCountDto>> GetUserCountPerRoleAsync();
     }
 }

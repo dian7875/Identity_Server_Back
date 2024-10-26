@@ -11,6 +11,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using Identity.Application.DTOs.User;
 
 
 
@@ -45,14 +46,15 @@ public class UserService : IUserService
             Lastname2 = registerDto.Lastname2,
             PasswordHash = HashPassword(registerDto.Password),
             RolId = registerDto.rolId,
+            DateRegistered = DateTime.UtcNow, 
+            IsActive = true
         };
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
         return user;
     }
-
-    public async Task<string> LoginUser(LoginDto loginDto)
+    public async Task<LoginResponseDto> LoginUser(LoginDto loginDto)
     {
         // Buscar al usuario por cédula y cargar el rol relacionado
         var user = await _context.Users
@@ -72,7 +74,7 @@ public class UserService : IUserService
         {
         new Claim(ClaimTypes.Name, user.Name ?? ""),
         new Claim(ClaimTypes.Email, user.Email ?? ""),
-        new Claim(ClaimTypes.Role, user.Rol?.Name ?? "") 
+        new Claim(ClaimTypes.Role, user.Rol?.Name ?? "")
     };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKey"));
@@ -85,27 +87,97 @@ public class UserService : IUserService
             expires: DateTime.Now.AddMinutes(30),
             signingCredentials: creds);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+
+        // Retornar tanto el token como el SessionId
+        return new LoginResponseDto
+        {
+            token = new JwtSecurityTokenHandler().WriteToken(token)
+        };
     }
 
 
-    public Task<User> GetUserByIdAsync(User user)
+    public async Task<User> GetUserByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        var user = await _context.Users.FindAsync(id);
+        if (user == null) throw new KeyNotFoundException("Usuario no encontrado.");
+        return user;
     }
 
-    public Task<IEnumerable<User>> GetAllUsersAsync()
+    public async Task<IEnumerable<User>> GetAllUsersAsync()
     {
-        throw new NotImplementedException();
+        return await _context.Users.ToListAsync();
     }
 
-    public Task UpdateUserAsync(User user)
+    public async Task UpdateUserAsync(int id, UserEditDto userEditDto)
     {
-        throw new NotImplementedException();
+        var existingUser = await _context.Users.FindAsync(id);
+        if (existingUser == null) throw new KeyNotFoundException("Usuario no encontrado.");
+
+        // Actualiza los datos de usuario
+        existingUser.Cedula = userEditDto.Cedula;
+        existingUser.Name = userEditDto.Name;
+        existingUser.Lastname1 = userEditDto.Lastname1;
+        existingUser.Lastname2 = userEditDto.Lastname2;
+        existingUser.Email = userEditDto.Email;
+        existingUser.Phone = userEditDto.Phone;
+        existingUser.Address = userEditDto.Address;
+
+         
+        await _context.SaveChangesAsync();
     }
 
-    public Task DeleteUserAsync(User user)
+    public async Task UpdateUserRoleAsync(int userId, int roleId)
     {
-        throw new NotImplementedException();
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+        {
+            throw new KeyNotFoundException("Usuario no encontrado.");
+        }
+
+        var rol = await _context.Roles.FindAsync(roleId);
+        if (rol == null)
+        {
+            throw new KeyNotFoundException("Rol no encontrado.");
+        }
+
+        user.RolId = roleId;
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+    }
+
+
+    public async Task DeleteUserAsync(int id)
+    {
+        //Busca por el id de usurio
+        var user = await _context.Users.FindAsync(id);
+        if (user == null) throw new KeyNotFoundException("Usuario no encontrado.");
+
+        
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<StatisticsDto> GetStatisticsAsync()
+    {
+        var totalUsers = await _context.Users.CountAsync();
+        var totalRoles = await _context.Roles.CountAsync();
+
+        return new StatisticsDto
+        {
+            TotalUsers = totalUsers,
+            TotalRoles = totalRoles
+        };
+    }
+
+    public async Task<IEnumerable<RoleUserCountDto>> GetUserCountPerRoleAsync()
+    {
+        return await _context.Roles
+            .Select(r => new RoleUserCountDto
+            {
+                RoleId = r.Id,
+                RoleName = r.Name,
+                UserCount = _context.Users.Count(u => u.RolId == r.Id)
+            })
+            .ToListAsync();
     }
 }
