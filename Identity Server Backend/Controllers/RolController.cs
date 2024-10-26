@@ -25,9 +25,9 @@ namespace Identity_Server_Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllRoles([FromQuery] string name = null)
+        public async Task<IActionResult> GetAllRoles()
         {
-            var roles = await _rolService.GetAllRoles(name);
+            var roles = await _rolService.GetAllRoles();
             return Ok(roles);
         }
 

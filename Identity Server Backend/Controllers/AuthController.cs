@@ -32,11 +32,13 @@ namespace Identity_Server_Backend.Controllers
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
+                Secure = true, 
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.Now.AddHours(24)
             };
+
             Response.Cookies.Append("jwt", token, cookieOptions);
+
             return Ok(new { Token = token });
         }
     }

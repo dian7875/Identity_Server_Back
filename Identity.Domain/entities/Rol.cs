@@ -10,7 +10,6 @@ namespace Identity.Domain.entities
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
 
         // Relación uno a MUCHOS con User
         public ICollection<User> Users { get; set; } = new List<User>();

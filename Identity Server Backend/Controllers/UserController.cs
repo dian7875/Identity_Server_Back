@@ -104,56 +104,5 @@ namespace Identity_Server_Backend.Controllers
             };
             return Ok(profile);
         }
-
-        [HttpPut("{id}/role")]
-        public async Task<IActionResult> UpdateUserRole(int id, [FromBody] UpdateUserRoleDto updateRoleDto)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            try
-            {
-                await _userService.UpdateUserRoleAsync(id, updateRoleDto.RoleId);
-                return NoContent(); 
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Error interno del servidor.");
-            }
-        }
-
-        [HttpGet("statistics/summary")]
-        public async Task<IActionResult> GetStatistics()
-        {
-            try
-            {
-                var statistics = await _userService.GetStatisticsAsync();
-                return Ok(statistics);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Error interno del servidor.");
-            }
-        }
-
-        [HttpGet("statistics/users-per-role")]
-        public async Task<IActionResult> GetUserCountPerRole()
-        {
-            try
-            {
-                var counts = await _userService.GetUserCountPerRoleAsync();
-                return Ok(counts);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Error interno del servidor.");
-            }
-        }
     }
 }
