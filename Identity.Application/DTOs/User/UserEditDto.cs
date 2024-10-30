@@ -17,24 +17,4 @@ namespace Identity.Application.DTOs.User
         public string? Phone { get; set; }
         public string? Address { get; set; }
     }
-
-    public class UpdateUserRoleDto
-    {
-        public int RoleId { get; set; }
-    }
-
-    //conteo total de usuarios y roles.
-    public class StatisticsDto
-    {
-        public int TotalUsers { get; set; }
-        public int TotalRoles { get; set; }
-    }
-
-    //conteo de usuarios por cada rol
-    public class RoleUserCountDto
-    {
-        public int RoleId { get; set; }
-        public string RoleName { get; set; }
-        public int UserCount { get; set; }
-    }
 }

@@ -35,6 +35,17 @@ public class UserService : IUserService
 
     public async Task<User> RegisterUser(RegisterDto registerDto)
     {
+
+        // Verificar si el correo electrónico ya está registrado
+        if (await _context.Users.AnyAsync(u => u.Email == registerDto.Email))
+        {
+            throw new ArgumentException("El correo electrónico ya está en uso.");
+        }
+        // Verificar si la cédula ya está registrada
+        if (await _context.Users.AnyAsync(u => u.Cedula == registerDto.Cedula))
+        {
+            throw new ArgumentException("La cédula ya está en uso.");
+        }
         var user = new User
         {
             Cedula = registerDto.Cedula,
@@ -55,19 +66,34 @@ public class UserService : IUserService
         return user;
     }
     public async Task<LoginResponseDto> LoginUser(LoginDto loginDto)
-    {
-        // Buscar al usuario por cédula y cargar el rol relacionado
-        var user = await _context.Users
-            .Include(u => u.Rol) // Incluir el rol relacionado
-            .FirstOrDefaultAsync(u => u.Cedula == loginDto.Cedula);
 
-        if (user == null) return null;
+    {
+        //Evitar que los usuarios desactivados inicien sesion
+        var user = await _context.Users
+       .Include(u => u.Rol)
+       .FirstOrDefaultAsync(u => u.Cedula == loginDto.Cedula);
+
+        if (user == null || !user.IsActive)
+            return null;
 
         // Validar la contraseña
         if (user.PasswordHash != HashPassword(loginDto.Password))
         {
             return null;
         }
+
+        //// Buscar al usuario por cédula y cargar el rol relacionado
+        //var user = await _context.Users
+        //    .Include(u => u.Rol) // Incluir el rol relacionado
+        //    .FirstOrDefaultAsync(u => u.Cedula == loginDto.Cedula);
+
+        //if (user == null) return null;
+
+        //// Validar la contraseña
+        //if (user.PasswordHash != HashPassword(loginDto.Password))
+        //{
+        //    return null;
+        //}
 
         // Crear los claims, incluyendo el nombre del rol
         var claims = new[]
@@ -171,6 +197,32 @@ public class UserService : IUserService
             TotalRoles = totalRoles
         };
     }
+
+
+    //desactivar y activar
+    public async Task DeactivateUserAsync(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+            throw new KeyNotFoundException("Usuario no encontrado.");
+
+        user.IsActive = false;
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task ReactivateUserAsync(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+            throw new KeyNotFoundException("Usuario no encontrado.");
+
+        user.IsActive = true;
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+    }
+
+
 
     public async Task<IEnumerable<RoleUserCountDto>> GetUserCountPerRoleAsync()
     {

@@ -38,7 +38,7 @@ namespace Identity_Server_Backend.Controllers
             return CreatedAtAction(nameof(GetRolById), new { id = rol.Id }, rol);
         }
 
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
         public async Task<IActionResult> UpdateRol(int id, [FromBody] RolDto rolDto)
         {
             await _rolService.UpdateRol(id, rolDto);

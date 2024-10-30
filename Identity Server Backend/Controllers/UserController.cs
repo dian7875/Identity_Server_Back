@@ -39,21 +39,57 @@ namespace Identity_Server_Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers(int page = 1, int pageSize = 10)
         {
+            // Obtener la lista de usuarios y aplicar paginación
             var users = await _userService.GetAllUsersAsync();
-            return Ok(users);
+
+            // Calcular el total de usuarios antes de la paginación
+            int totalUsers = users.Count();
+
+            // Aplicar paginación
+            var pagedUsers = users
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // Retornar el resultado con información de paginación
+            return Ok(new
+            {
+                TotalUsers = totalUsers,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalUsers / (double)pageSize),
+                Data = pagedUsers
+            });
+        }
+        //Crear usuario 
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromBody] RegisterDto registerDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var user = await _userService.RegisterUser(registerDto);
+                return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Error interno del servidor.");
+            }
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> CreateUser([FromBody] User user)
-        //{
-        //    await _userService.AddUserAsync(user);
-        //    return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
-        //}
-     
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserEditDto userEditDto)
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] Identity.Application.DTOs.User.UserEditDto userEditDto)
         {
             if (!ModelState.IsValid)
             {
@@ -106,7 +142,7 @@ namespace Identity_Server_Backend.Controllers
         }
 
         [HttpPut("{id}/role")]
-        public async Task<IActionResult> UpdateUserRole(int id, [FromBody] UpdateUserRoleDto updateRoleDto)
+        public async Task<IActionResult> UpdateUserRole(int id, [FromBody] UpdateUserRolDto updateRoleDto)
         {
             if (!ModelState.IsValid)
             {
@@ -149,6 +185,43 @@ namespace Identity_Server_Backend.Controllers
             {
                 var counts = await _userService.GetUserCountPerRoleAsync();
                 return Ok(counts);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Error interno del servidor.");
+            }
+        }
+
+        //activar y desactivar 
+        [HttpPut("{id}/desactivate")]
+        public async Task<IActionResult> DeactivateUser(int id)
+        {
+            try
+            {
+                await _userService.DeactivateUserAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Error interno del servidor.");
+            }
+        }
+
+        [HttpPut("{id}/reactivate")]
+        public async Task<IActionResult> ReactivateUser(int id)
+        {
+            try
+            {
+                await _userService.ReactivateUserAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception)
             {
