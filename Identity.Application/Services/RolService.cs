@@ -33,7 +33,7 @@ namespace Identity.Application.Services
             };
         }
 
-        public async Task<IEnumerable<RolResponseDto>> GetAllRoles(string name = null)
+        public async Task<IEnumerable<RolResponseDto>> GetAllRoles(string name = null, int pageNumber = 1, int pageSize = 10)
         {
             var query = _context.Roles.AsQueryable();
 
@@ -42,7 +42,11 @@ namespace Identity.Application.Services
                 query = query.Where(r => r.Name.Contains(name));
             }
 
-            return await query
+            var totalCount = await query.CountAsync(); 
+
+            var roles = await query
+                .Skip((pageNumber - 1) * pageSize) 
+                .Take(pageSize) 
                 .Select(r => new RolResponseDto
                 {
                     Id = r.Id,
@@ -50,7 +54,10 @@ namespace Identity.Application.Services
                     Description = r.Description
                 })
                 .ToListAsync();
+
+            return roles; 
         }
+
 
         public async Task<RolResponseDto> CreateRol(RolDto rolDto)
         {
@@ -66,17 +73,18 @@ namespace Identity.Application.Services
             var rol = new Rol
             {
                 Name = rolDto.Name,
-                Description = rolDto.Description
+                Description = rolDto.Description,
+                IsActive = rolDto.IsActive 
             };
 
             _context.Roles.Add(rol);
             await _context.SaveChangesAsync();
-
             return new RolResponseDto
             {
                 Id = rol.Id,
                 Name = rol.Name,
-                Description = rol.Description
+                Description = rol.Description,
+                IsActive = rol.IsActive 
             };
         }
 
@@ -90,12 +98,13 @@ namespace Identity.Application.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteRol(int id)
+        public async Task DeactivateRol(int id) 
         {
             var rol = await _context.Roles.FindAsync(id);
             if (rol == null) return;
 
-            _context.Roles.Remove(rol);
+           
+            rol.IsActive = false; 
             await _context.SaveChangesAsync();
         }
     }
