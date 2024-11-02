@@ -1,7 +1,9 @@
-﻿using Identity.Application.DTOs.Rol;
+﻿using Identity.Application.DTOs;
+using Identity.Application.DTOs.Rol;
 using Identity.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Identity_Server_Backend.Controllers
 {
@@ -13,8 +15,11 @@ namespace Identity_Server_Backend.Controllers
 
         public RolController(IRolService rolService)
         {
+
             _rolService = rolService;
         }
+
+
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRolById(int id)
@@ -25,11 +30,20 @@ namespace Identity_Server_Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllRoles([FromQuery] string name = null)
+        public async Task<IActionResult> GetAllRoles([FromQuery] string name = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var roles = await _rolService.GetAllRoles(name);
-            return Ok(roles);
+            var roles = await _rolService.GetAllRoles(name, pageNumber, pageSize);
+            var totalCount = await _rolService.GetAllRoles(name); 
+
+            return Ok(new
+            {
+                TotalCount = totalCount.Count(), 
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Roles = roles
+            });
         }
+
 
         [HttpPost]
         public async Task<IActionResult> CreateRol([FromBody] RolDto rolDto)
@@ -38,17 +52,17 @@ namespace Identity_Server_Backend.Controllers
             return CreatedAtAction(nameof(GetRolById), new { id = rol.Id }, rol);
         }
 
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
         public async Task<IActionResult> UpdateRol(int id, [FromBody] RolDto rolDto)
         {
             await _rolService.UpdateRol(id, rolDto);
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRol(int id)
+        [HttpPatch("deactivate/{id}")]
+        public async Task<IActionResult> DeactivateRol(int id)
         {
-            await _rolService.DeleteRol(id);
+            await _rolService.DeactivateRol(id); 
             return NoContent();
         }
     }
