@@ -20,5 +20,8 @@ namespace Identity.Application.Interfaces
         Task UpdateUserRoleAsync(int userId, int roleId);
         Task<StatisticsDto> GetStatisticsAsync();
         Task<IEnumerable<RoleUserCountDto>> GetUserCountPerRoleAsync();
+        //desactivar y activar
+        Task DeactivateUserAsync(int id);
+        Task ReactivateUserAsync(int id);
     }
 }

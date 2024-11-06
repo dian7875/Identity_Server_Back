@@ -35,6 +35,17 @@ public class UserService : IUserService
 
     public async Task<User> RegisterUser(RegisterDto registerDto)
     {
+        // Verificar si el correo electrónico ya está registrado
+        if (await _context.Users.AnyAsync(u => u.Email == registerDto.Email))
+        {
+            throw new ArgumentException("El correo electrónico ya está en uso.");
+        }
+        // Verificar si la cédula ya está registrada
+        if (await _context.Users.AnyAsync(u => u.Cedula == registerDto.Cedula))
+        {
+            throw new ArgumentException("La cédula ya está en uso.");
+        }
+
         var user = new User
         {
             Cedula = registerDto.Cedula,
@@ -176,5 +187,28 @@ public class UserService : IUserService
                 UserCount = _context.Users.Count(u => u.RolId == r.Id)
             })
             .ToListAsync();
+    }
+
+    //desactivar y activar
+    public async Task DeactivateUserAsync(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+            throw new KeyNotFoundException("Usuario no encontrado.");
+
+        user.IsActive = false;
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task ReactivateUserAsync(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+            throw new KeyNotFoundException("Usuario no encontrado.");
+
+        user.IsActive = true;
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
     }
 }
