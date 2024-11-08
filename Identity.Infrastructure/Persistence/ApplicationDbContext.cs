@@ -1,4 +1,6 @@
 ﻿using Identity.Domain.entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,11 +10,10 @@ using System.Threading.Tasks;
 
 namespace Identity.Infrastructure.Persistence
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser, IdentityRole, string>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
-
         public DbSet<User> Users { get; set; }
         public DbSet<Rol> Roles { get; set; }
 
@@ -20,11 +21,11 @@ namespace Identity.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configurar relación uno a MUCHOS entre User y Rol
+            // Configurar relación uno a muchos entre User y Rol si es necesario
             modelBuilder.Entity<User>()
-            .HasOne(u => u.Rol)
-            .WithMany(r => r.Users)   
-            .HasForeignKey(u => u.RolId);
+                .HasOne(u => u.Rol)
+                .WithMany(r => r.Users)
+                .HasForeignKey(u => u.RolId);
         }
     }
 }

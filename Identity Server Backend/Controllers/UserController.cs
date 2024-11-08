@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Identity_Server_Backend.Controllers
 {
-
-
+    [Authorize(Policy = "RequireAdminRole")]
+    [Authorize(Policy = "RequireClientRole")]
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
@@ -20,6 +20,7 @@ namespace Identity_Server_Backend.Controllers
             _userService = userService;
         }
 
+       
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
@@ -38,6 +39,7 @@ namespace Identity_Server_Backend.Controllers
             }
         }
 
+       
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
