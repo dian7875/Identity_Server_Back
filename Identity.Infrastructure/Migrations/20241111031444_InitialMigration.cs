@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Identity.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialIdentityMigration : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -48,6 +50,21 @@ namespace Identity.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Roles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -156,6 +173,53 @@ namespace Identity.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Cedula = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Lastname1 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Lastname2 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DateRegistered = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RolId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Users_Roles_RolId",
+                        column: x => x.RolId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Roles",
+                columns: new[] { "Id", "Description", "IsActive", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Rol de administrador", true, "Admin" },
+                    { 2, "Rol del cliente", true, "Client" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "Address", "Cedula", "DateRegistered", "Email", "IsActive", "Lastname1", "Lastname2", "Name", "PasswordHash", "Phone", "RolId" },
+                values: new object[,]
+                {
+                    { 1, "75 metros sur templo evangelico la pz", "504520162", new DateTime(2024, 11, 11, 3, 14, 44, 522, DateTimeKind.Utc).AddTicks(9110), "achengjimenezprimaria@gmail.com", true, "Cheng", "Jimenez", "Akion", "AQAAAAIAAYagAAAAEMjLI94DOj3OesguDOPUZnk0GXeZ4RRfow3gPBamzfANiJvLZVKmh9dRIoMhGKHxng==", "83541298", 2 },
+                    { 2, "Rio grande", "000000000", new DateTime(2024, 11, 11, 3, 14, 44, 571, DateTimeKind.Utc).AddTicks(9038), "adminsudo@gmail.com", true, "Aguilar", "Diaz", "Adrian", "AQAAAAIAAYagAAAAEJP975NhpJEzaTuFh0mZ7RzHVGguJTnQnsWfL1Qz6giV1uf3/jqIWqZJk80RIRZK8A==", "12098723", 1 }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -194,6 +258,11 @@ namespace Identity.Infrastructure.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_RolId",
+                table: "Users",
+                column: "RolId");
         }
 
         /// <inheritdoc />
@@ -215,10 +284,16 @@ namespace Identity.Infrastructure.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Users");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Roles");
         }
     }
 }
