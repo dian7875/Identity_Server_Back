@@ -1,14 +1,14 @@
 ﻿using Identity.Application.DTOs.Auth;
 using Identity.Application.DTOs.User;
 using Identity.Application.Interfaces;
+using Identity.Application.Services;
 using Identity.Domain.entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Identity_Server_Backend.Controllers
 {
-
-
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
@@ -38,20 +38,50 @@ namespace Identity_Server_Backend.Controllers
             }
         }
 
+
         [HttpGet]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers([FromQuery] string cedula = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 5)
         {
-            var users = await _userService.GetAllUsersAsync();
-            return Ok(users);
+       
+            var totalCount = await _userService.GetAllUsers(cedula);
+
+            var usuarios = await _userService.GetAllUsers(cedula, pageNumber, pageSize);
+
+            return Ok(new
+            {
+                TotalCount = totalCount.Count(),
+                Page = pageNumber,
+                Limit = pageSize,
+                Usuarios = usuarios
+            });
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> CreateUser([FromBody] User user)
-        //{
-        //    await _userService.AddUserAsync(user);
-        //    return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
-        //}
-     
+
+
+        //Crear usuario 
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromBody] RegisterDto registerDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var user = await _userService.RegisterUser(registerDto);
+                return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Error interno del servidor.");
+            }
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UserEditDto userEditDto)
         {
@@ -149,6 +179,43 @@ namespace Identity_Server_Backend.Controllers
             {
                 var counts = await _userService.GetUserCountPerRoleAsync();
                 return Ok(counts);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Error interno del servidor.");
+            }
+        }
+
+        //activar y desactivar 
+        [HttpPut("{id}/desactivate")]
+        public async Task<IActionResult> DeactivateUser(int id)
+        {
+            try
+            {
+                await _userService.DeactivateUserAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Error interno del servidor.");
+            }
+        }
+
+        [HttpPut("{id}/reactivate")]
+        public async Task<IActionResult> ReactivateUser(int id)
+        {
+            try
+            {
+                await _userService.ReactivateUserAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception)
             {

@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using Identity.Application.DTOs.User;
+using Identity.Application.DTOs.Rol;
 
 
 
@@ -35,6 +36,17 @@ public class UserService : IUserService
 
     public async Task<User> RegisterUser(RegisterDto registerDto)
     {
+        // Verificar si el correo electrónico ya está registrado
+        if (await _context.Users.AnyAsync(u => u.Email == registerDto.Email))
+        {
+            throw new ArgumentException("El correo electrónico ya está en uso.");
+        }
+        // Verificar si la cédula ya está registrada
+        if (await _context.Users.AnyAsync(u => u.Cedula == registerDto.Cedula))
+        {
+            throw new ArgumentException("La cédula ya está en uso.");
+        }
+
         var user = new User
         {
             Cedula = registerDto.Cedula,
@@ -45,7 +57,7 @@ public class UserService : IUserService
             Lastname1 = registerDto.Lastname1,
             Lastname2 = registerDto.Lastname2,
             PasswordHash = HashPassword(registerDto.Password),
-            RolId = registerDto.rolId,
+            RolId = registerDto.rolId ?? 2,
             DateRegistered = DateTime.UtcNow, 
             IsActive = true
         };
@@ -81,14 +93,11 @@ public class UserService : IUserService
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: "https://localhost:5001",
+            issuer: "https://localhost:7222/",
             audience: "api1",
             claims: claims,
-            expires: DateTime.Now.AddMinutes(30),
+            expires: DateTime.UtcNow.AddDays(1),
             signingCredentials: creds);
-
-
-        // Retornar tanto el token como el SessionId
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
@@ -100,10 +109,37 @@ public class UserService : IUserService
         return user;
     }
 
-    public async Task<IEnumerable<User>> GetAllUsersAsync()
+    public async Task<IEnumerable<UsersResponseDTO>> GetAllUsers(string cedula = null, int pageNumber = 1, int pageSize = 5)
     {
-        return await _context.Users.ToListAsync();
+        var query = _context.Users.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(cedula))
+        {
+            query = query.Where(u => u.Cedula.Contains(cedula));
+        }
+
+        var users = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Select(u => new UsersResponseDTO
+            {
+                id = u.Id,
+                name = u.Name,
+                cedula = u.Cedula,
+                email = u.Email,
+                phone = u.Phone,
+                address = u.Address,
+                lastname1 = u.Lastname1,
+                lastname2 = u.Lastname2,
+                dateRegistered = u.DateRegistered,
+                isActive = u.IsActive,
+                rol = u.Rol.Name
+            })
+            .ToListAsync();
+
+        return users;
     }
+
 
     public async Task UpdateUserAsync(int id, UserEditDto userEditDto)
     {
@@ -176,5 +212,28 @@ public class UserService : IUserService
                 UserCount = _context.Users.Count(u => u.RolId == r.Id)
             })
             .ToListAsync();
+    }
+
+    //desactivar y activar
+    public async Task DeactivateUserAsync(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+            throw new KeyNotFoundException("Usuario no encontrado.");
+
+        user.IsActive = false;
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task ReactivateUserAsync(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+            throw new KeyNotFoundException("Usuario no encontrado.");
+
+        user.IsActive = true;
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
     }
 }

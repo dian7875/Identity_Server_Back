@@ -3,20 +3,30 @@ using Identity.Application.Interfaces;
 using Identity.Application.Services;
 using Identity.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using MyApp.Infrastructure.Helpers;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin", builder =>
+    options.AddPolicy("AllowAll", builder =>
     {
         builder
-            .WithOrigins("https://indentity-server-login.vercel.app",
-            "http://localhost:5173",
+            .WithOrigins(
+            "https://eshop-users.vercel.app",
+            "https://eshop-loggin.vercel.app",
             "http://localhost:5174",
-            "https://user-manage-snowy.vercel.app")
+            "http://localhost:5173"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -24,10 +34,15 @@ builder.Services.AddCors(options =>
 });
 
 
+IdentityModelEventSource.ShowPII = true;
 
 
 // Cargar configuraci�n
 var configuration = builder.Configuration;
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
 
 // Agregar infraestructura y contexto de base de datos
 builder.Services.AddInfrastructure(configuration);
@@ -45,25 +60,95 @@ builder.Services.AddIdentityServer()
 
 builder.Services.AddControllers();
 
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
 
-// Agregar JWT Bearer Authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+    // Configuración para el encabezado Authorization con el token JWT
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        options.Authority = "https://localhost:7147";  // La URL de tu IdentityServer
-        options.RequireHttpsMetadata = false;          // Solo para desarrollo, en producci�n deber�as usar HTTPS
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,                      // Validar qui�n emite el token
-            ValidateAudience = false,                   // No es necesario validar la audiencia en este ejemplo
-            ValidateLifetime = true,                    // Validar que el token no haya expirado
-            ValidateIssuerSigningKey = true,            // Validar la firma del emisor
-            ValidIssuer = "https://localhost:7147",     // El emisor del token, que debe coincidir con el servidor de autorizaci�n
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("YourSecretKey"))  // La clave usada para firmar los tokens
-        };
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",  // "bearer" indica el tipo de autenticación
+        BearerFormat = "JWT",  // Este es el formato esperado para un token JWT
+        In = ParameterLocation.Header,  // El token se incluirá en el encabezado
+        Description = "JWT Authorization header usando el esquema Bearer. Incluye el token como: Bearer {token}"
     });
 
-builder.Services.AddAuthorization();
+    // Añadir la configuración de seguridad para requerir el token JWT
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer" // Relacionamos la seguridad con el esquema definido arriba
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var token = context.Request.Cookies["jwt"];
+            if (string.IsNullOrEmpty(token))
+            {
+                context.Fail("Token no recibido.");
+                return Task.CompletedTask;
+            }
+
+            Console.WriteLine("Token recibido: " + token);
+
+            if (JwtHelper.ValidateToken(token)) 
+            {
+                context.Token = token;
+            }
+            else
+            {
+                context.Fail("Token no válido.");
+            }
+
+            return Task.CompletedTask;
+        }
+    };
+
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = "https://localhost:7222/", 
+        ValidAudience = "api1",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKey"))
+    };
+});
+
+
+builder.Services.AddAuthorization(options =>
+{
+    // Política para administradores
+    options.AddPolicy("RequireAdminRole", policy =>
+        policy.RequireRole("Admin"));
+
+    // Política para clientes
+    options.AddPolicy("RequireClientRole", policy =>
+        policy.RequireRole("Client"));
+});
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -71,8 +156,25 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    // Definir los roles que necesitas
+    string[] roles = new string[] { "Admin", "Client" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+}
+
+
 app.UseHttpsRedirection();
-app.UseCors("AllowSpecificOrigin");
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
