@@ -19,8 +19,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", builder =>
     {
         builder
-            .WithOrigins("https://eshop-users.vercel.app",
-            "https://eshop-loggin.vercel.app")
+            .WithOrigins(
+            "https://eshop-users.vercel.app",
+            "https://eshop-loggin.vercel.app"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
