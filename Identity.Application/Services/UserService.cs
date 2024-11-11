@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using Identity.Application.DTOs.User;
+using Identity.Application.DTOs.Rol;
 
 
 
@@ -56,7 +57,7 @@ public class UserService : IUserService
             Lastname1 = registerDto.Lastname1,
             Lastname2 = registerDto.Lastname2,
             PasswordHash = HashPassword(registerDto.Password),
-            RolId =2,
+            RolId = 2,
             DateRegistered = DateTime.UtcNow, 
             IsActive = true
         };
@@ -111,10 +112,37 @@ public class UserService : IUserService
         return user;
     }
 
-    public async Task<IEnumerable<User>> GetAllUsersAsync()
+    public async Task<IEnumerable<UsersResponseDTO>> GetAllUsers(string cedula = null, int pageNumber = 1, int pageSize = 5)
     {
-        return await _context.Users.ToListAsync();
+        var query = _context.Users.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(cedula))
+        {
+            query = query.Where(u => u.Cedula.Contains(cedula));
+        }
+
+        var users = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Select(u => new UsersResponseDTO
+            {
+                id = u.Id,
+                name = u.Name,
+                cedula = u.Cedula,
+                email = u.Email,
+                phone = u.Phone,
+                address = u.Address,
+                lastname1 = u.Lastname1,
+                lastname2 = u.Lastname2,
+                dateRegistered = u.DateRegistered,
+                isActive = u.IsActive,
+                rol = u.Rol.Name
+            })
+            .ToListAsync();
+
+        return users;
     }
+
 
     public async Task UpdateUserAsync(int id, UserEditDto userEditDto)
     {
