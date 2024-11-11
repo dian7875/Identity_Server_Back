@@ -19,11 +19,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", builder =>
     {
         builder
-            .WithOrigins("https://indentity-server-login.vercel.app",
-            "http://localhost:5173",
-            "http://localhost:7222",
-            "https://user-manage-snowy.vercel.app",
-            "https://zcz17ld0-5173.use2.devtunnels.ms")
+            .WithOrigins(
+            "https://eshop-users.vercel.app",
+            "https://eshop-loggin.vercel.app",
+            "http://localhost:5174"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
