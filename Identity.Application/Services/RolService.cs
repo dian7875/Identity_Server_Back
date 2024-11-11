@@ -74,7 +74,7 @@ namespace Identity.Application.Services
             {
                 Name = rolDto.Name,
                 Description = rolDto.Description,
-                IsActive = rolDto.IsActive 
+                IsActive = true
             };
 
             _context.Roles.Add(rol);
@@ -84,7 +84,7 @@ namespace Identity.Application.Services
                 Id = rol.Id,
                 Name = rol.Name,
                 Description = rol.Description,
-                IsActive = rol.IsActive 
+                IsActive = true
             };
         }
 
@@ -105,6 +105,16 @@ namespace Identity.Application.Services
 
            
             rol.IsActive = false; 
+            await _context.SaveChangesAsync();
+        }
+        public async Task ReactivateRol(int id)
+        {
+            var rol = await _context.Roles.FindAsync(id);
+            if (rol == null) return;
+
+
+            rol.IsActive = true;
+
             await _context.SaveChangesAsync();
         }
     }
