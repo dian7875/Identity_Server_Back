@@ -17,6 +17,7 @@ namespace Identity.Application.DTOs.Auth
         public string Lastname2 { get; set; }
         public string Password { get; set; }
 
+        public int rolId { get; set; }
     }
 
 }
