@@ -1,12 +1,14 @@
 ﻿using Identity.Application.DTOs;
 using Identity.Application.DTOs.Rol;
 using Identity.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Identity_Server_Backend.Controllers
 {
+    [Authorize(Policy = "AdminPolicy")]
     [Route("api/[controller]")]
     [ApiController]
     public class RolController : ControllerBase

@@ -19,11 +19,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", builder =>
     {
         builder
-            .WithOrigins("https://indentity-server-login.vercel.app",
-            "http://localhost:5173",
-            "http://localhost:7222",
-            "https://user-manage-snowy.vercel.app",
-            "https://zcz17ld0-5173.use2.devtunnels.ms")
+
+            .WithOrigins(
+            "https://eshop-users.vercel.app",
+            "https://eshop-loggin.vercel.app"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -135,21 +135,6 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-    // Definir los roles que necesitas
-    string[] roles = new string[] { "Admin", "Client" };
-
-    foreach (var role in roles)
-    {
-        if (!await roleManager.RoleExistsAsync(role))
-        {
-            await roleManager.CreateAsync(new IdentityRole(role));
-        }
-    }
-}
 
 
 app.UseHttpsRedirection();

@@ -44,6 +44,22 @@ namespace Identity.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Rol de administrador",
+                            IsActive = true,
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Rol del cliente",
+                            IsActive = true,
+                            Name = "Client"
+                        });
                 });
 
             modelBuilder.Entity("Identity.Domain.entities.User", b =>
@@ -93,6 +109,38 @@ namespace Identity.Infrastructure.Migrations
                     b.HasIndex("RolId");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "75 metros sur templo evangelico la pz",
+                            Cedula = "504520162",
+                            DateRegistered = new DateTime(2024, 11, 11, 3, 14, 44, 522, DateTimeKind.Utc).AddTicks(9110),
+                            Email = "achengjimenezprimaria@gmail.com",
+                            IsActive = true,
+                            Lastname1 = "Cheng",
+                            Lastname2 = "Jimenez",
+                            Name = "Akion",
+                            PasswordHash = "AQAAAAIAAYagAAAAEMjLI94DOj3OesguDOPUZnk0GXeZ4RRfow3gPBamzfANiJvLZVKmh9dRIoMhGKHxng==",
+                            Phone = "83541298",
+                            RolId = 2
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Address = "Rio grande",
+                            Cedula = "000000000",
+                            DateRegistered = new DateTime(2024, 11, 11, 3, 14, 44, 571, DateTimeKind.Utc).AddTicks(9038),
+                            Email = "adminsudo@gmail.com",
+                            IsActive = true,
+                            Lastname1 = "Aguilar",
+                            Lastname2 = "Diaz",
+                            Name = "Adrian",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJP975NhpJEzaTuFh0mZ7RzHVGguJTnQnsWfL1Qz6giV1uf3/jqIWqZJk80RIRZK8A==",
+                            Phone = "12098723",
+                            RolId = 1
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
