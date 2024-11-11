@@ -40,8 +40,8 @@ namespace Identity_Server_Backend.Controllers
             return Ok(new
             {
                 TotalCount = totalCount.Count(), 
-                PageNumber = pageNumber,
-                PageSize = pageSize,
+                page = pageNumber,
+                limit = pageSize,
                 Roles = roles
             });
         }

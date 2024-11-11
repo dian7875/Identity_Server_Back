@@ -1,13 +1,14 @@
 ﻿using Identity.Application.DTOs.Auth;
 using Identity.Application.DTOs.User;
 using Identity.Application.Interfaces;
+using Identity.Application.Services;
 using Identity.Domain.entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Identity_Server_Backend.Controllers
 {
-   
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
@@ -19,7 +20,6 @@ namespace Identity_Server_Backend.Controllers
             _userService = userService;
         }
 
-       
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
@@ -38,13 +38,25 @@ namespace Identity_Server_Backend.Controllers
             }
         }
 
-       
+
         [HttpGet]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers([FromQuery] string cedula = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 5)
         {
-            var users = await _userService.GetAllUsersAsync();
-            return Ok(users);
+       
+            var totalCount = await _userService.GetAllUsers(cedula);
+
+            var usuarios = await _userService.GetAllUsers(cedula, pageNumber, pageSize);
+
+            return Ok(new
+            {
+                TotalCount = totalCount.Count(),
+                Page = pageNumber,
+                Limit = pageSize,
+                Usuarios = usuarios
+            });
         }
+
+
 
         //Crear usuario 
         [HttpPost]
