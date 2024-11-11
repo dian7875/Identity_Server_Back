@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 namespace Identity.Infrastructure.Persistence
 {
@@ -42,6 +43,7 @@ namespace Identity.Infrastructure.Persistence
                 Name = "Akion",
                 Lastname1 = "Cheng",
                 Lastname2 = "Jimenez",
+                PasswordHash = HashPassword("akion123"),
                 Email = "achengjimenezprimaria@gmail.com",
                 Phone = "83541298",
                 Address = "75 metros sur templo evangelico la pz",
@@ -49,7 +51,7 @@ namespace Identity.Infrastructure.Persistence
                 IsActive = true,
                 RolId = 2 
             };
-            user1.PasswordHash = passwordHasher.HashPassword(user1, "akion123");
+        ;
 
             var user2 = new User
             {
@@ -58,6 +60,7 @@ namespace Identity.Infrastructure.Persistence
                 Name = "Adrian",
                 Lastname1 = "Aguilar",
                 Lastname2 = "Diaz",
+                PasswordHash = HashPassword("adrian123"),
                 Email = "adminsudo@gmail.com",
                 Phone = "12098723",
                 Address = "Rio grande",
@@ -65,9 +68,17 @@ namespace Identity.Infrastructure.Persistence
                 IsActive = true,
                 RolId = 1
             };
-            user2.PasswordHash = passwordHasher.HashPassword(user2, "adrian123");
+            
 
             modelBuilder.Entity<User>().HasData(user1, user2);
+        }
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(bytes);
+            }
         }
     }
 }

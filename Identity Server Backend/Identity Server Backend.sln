@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity Server Backend", "Identity Server Backend.csproj", "{E241457B-BC3C-4244-8781-2A7DFB042416}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity Server Backend", "Identity Server Backend.csproj", "{E241457B-BC3C-4244-8781-2A7DFB042416}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.Application", "..\Identity.Application\Identity.Application.csproj", "{3E9C3D8C-A028-4AE0-B6F8-F8E7A5B0FD06}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.Application", "..\Identity.Application\Identity.Application.csproj", "{3E9C3D8C-A028-4AE0-B6F8-F8E7A5B0FD06}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.Domain", "..\Identity.Domain\Identity.Domain.csproj", "{FC2EC757-29F7-4EA0-9E0D-D4B8F29ABAC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.Domain", "..\Identity.Domain\Identity.Domain.csproj", "{FC2EC757-29F7-4EA0-9E0D-D4B8F29ABAC3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.Infrastructure", "..\Identity.Infrastructure\Identity.Infrastructure.csproj", "{584E9F97-F879-4629-8FCE-53D86F4AD919}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.Infrastructure", "..\Identity.Infrastructure\Identity.Infrastructure.csproj", "{584E9F97-F879-4629-8FCE-53D86F4AD919}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

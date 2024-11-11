@@ -216,8 +216,8 @@ namespace Identity.Infrastructure.Migrations
                 columns: new[] { "Id", "Address", "Cedula", "DateRegistered", "Email", "IsActive", "Lastname1", "Lastname2", "Name", "PasswordHash", "Phone", "RolId" },
                 values: new object[,]
                 {
-                    { 1, "75 metros sur templo evangelico la pz", "504520162", new DateTime(2024, 11, 11, 3, 14, 44, 522, DateTimeKind.Utc).AddTicks(9110), "achengjimenezprimaria@gmail.com", true, "Cheng", "Jimenez", "Akion", "AQAAAAIAAYagAAAAEMjLI94DOj3OesguDOPUZnk0GXeZ4RRfow3gPBamzfANiJvLZVKmh9dRIoMhGKHxng==", "83541298", 2 },
-                    { 2, "Rio grande", "000000000", new DateTime(2024, 11, 11, 3, 14, 44, 571, DateTimeKind.Utc).AddTicks(9038), "adminsudo@gmail.com", true, "Aguilar", "Diaz", "Adrian", "AQAAAAIAAYagAAAAEJP975NhpJEzaTuFh0mZ7RzHVGguJTnQnsWfL1Qz6giV1uf3/jqIWqZJk80RIRZK8A==", "12098723", 1 }
+                    { 1, "75 metros sur templo evangelico la pz", "504520162", new DateTime(2024, 11, 11, 17, 47, 58, 288, DateTimeKind.Utc).AddTicks(8511), "achengjimenezprimaria@gmail.com", true, "Cheng", "Jimenez", "Akion", "nHltDOulM3WDUccC/gKDlOxg/AqPcIZ7yTl94rzcorA=", "83541298", 2 },
+                    { 2, "Rio grande", "000000000", new DateTime(2024, 11, 11, 17, 47, 58, 288, DateTimeKind.Utc).AddTicks(8551), "adminsudo@gmail.com", true, "Aguilar", "Diaz", "Adrian", "Te09qU4BJF8qQBu7r7gBKMgOT2/r6wThpoTCUDqNncI=", "12098723", 1 }
                 });
 
             migrationBuilder.CreateIndex(
