@@ -22,7 +22,8 @@ builder.Services.AddCors(options =>
             .WithOrigins("https://indentity-server-login.vercel.app",
             "http://localhost:5173",
             "http://localhost:7222",
-            "https://user-manage-snowy.vercel.app")
+            "https://user-manage-snowy.vercel.app",
+            "https://zcz17ld0-5173.use2.devtunnels.ms")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();

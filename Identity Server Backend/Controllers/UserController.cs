@@ -7,8 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Identity_Server_Backend.Controllers
 {
-    [Authorize(Policy = "RequireAdminRole")]
-    [Authorize(Policy = "RequireClientRole")]
+   
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
