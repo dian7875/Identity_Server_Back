@@ -21,7 +21,9 @@ builder.Services.AddCors(options =>
         builder
             .WithOrigins(
             "https://eshop-users.vercel.app",
-            "https://eshop-loggin.vercel.app"
+            "https://eshop-loggin.vercel.app",
+            "http://localhost:5174",
+            "http://localhost:5173"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()

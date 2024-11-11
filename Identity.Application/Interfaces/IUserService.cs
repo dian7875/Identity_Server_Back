@@ -1,4 +1,5 @@
 ﻿using Identity.Application.DTOs.Auth;
+using Identity.Application.DTOs.Rol;
 using Identity.Application.DTOs.User;
 using Identity.Domain.entities;
 using System;
@@ -12,7 +13,8 @@ namespace Identity.Application.Interfaces
     public interface IUserService
     {
         Task<User> GetUserByIdAsync(int id);
-        Task<IEnumerable<User>> GetAllUsersAsync();
+        Task<IEnumerable<UsersResponseDTO>> GetAllUsers(string cedula = null, int pageNumber = 1, int pageSize = 5);
+
         Task<User> RegisterUser(RegisterDto registerDto);
         Task<string> LoginUser(LoginDto loginDto);
         Task UpdateUserAsync(int id, UserEditDto userEditDto);
