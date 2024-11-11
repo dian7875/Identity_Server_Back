@@ -74,7 +74,7 @@ namespace Identity.Application.Services
             {
                 Name = rolDto.Name,
                 Description = rolDto.Description,
-                IsActive = rolDto.IsActive 
+                IsActive = true
             };
 
             _context.Roles.Add(rol);

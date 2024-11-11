@@ -1,6 +1,7 @@
 ﻿using Identity.Application.DTOs;
 using Identity.Application.DTOs.Rol;
 using Identity.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,7 @@ namespace Identity_Server_Backend.Controllers
         }
 
 
-
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRolById(int id)
         {
@@ -29,6 +30,7 @@ namespace Identity_Server_Backend.Controllers
             return Ok(rol);
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllRoles([FromQuery] string name = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {

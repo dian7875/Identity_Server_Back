@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MyApp.Infrastructure.Helpers;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -61,15 +63,19 @@ builder.Services.AddControllers();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
+
+    // Configuración para el encabezado Authorization con el token JWT
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "JWT Authorization header usando el esquema Bearer."
+        Scheme = "bearer",  // "bearer" indica el tipo de autenticación
+        BearerFormat = "JWT",  // Este es el formato esperado para un token JWT
+        In = ParameterLocation.Header,  // El token se incluirá en el encabezado
+        Description = "JWT Authorization header usando el esquema Bearer. Incluye el token como: Bearer {token}"
     });
+
+    // Añadir la configuración de seguridad para requerir el token JWT
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -78,7 +84,7 @@ builder.Services.AddSwaggerGen(c =>
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
+                    Id = "Bearer" // Relacionamos la seguridad con el esquema definido arriba
                 }
             },
             new string[] {}
@@ -86,38 +92,52 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
-// Configure JWT Bearer Authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.Events = new JwtBearerEvents
     {
-        options.Authority = "https://localhost:7222";  // URL of your IdentityServer
-        options.RequireHttpsMetadata = false;          // Use HTTPS in production
-
-        options.TokenValidationParameters = new TokenValidationParameters
+        OnMessageReceived = context =>
         {
-            ValidateIssuer = true,                      // Validate token issuer
-            ValidateAudience = true,                   // Optional: validate audience
-            ValidateLifetime = true,                    // Validate token expiration
-            ValidateIssuerSigningKey = true,            // Validate the issuer's signing key
-            ValidIssuer = "https://localhost:7222",     // Expected token issuer
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("YourSecretKey"))  // Key for signing tokens
-        };
-
-        // Add logic to extract token from cookies
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
+            var token = context.Request.Cookies["jwt"];
+            if (string.IsNullOrEmpty(token))
             {
-                
-                    // Extract JWT from the "jwt" cookie
-                    context.Token = context.Request.Cookies["jwt"];
-                    return Task.CompletedTask;
-                
-
+                context.Fail("Token no recibido.");
+                return Task.CompletedTask;
             }
-        };
-    });
+
+            Console.WriteLine("Token recibido: " + token);
+
+            if (JwtHelper.ValidateToken(token)) 
+            {
+                context.Token = token;
+            }
+            else
+            {
+                context.Fail("Token no válido.");
+            }
+
+            return Task.CompletedTask;
+        }
+    };
+
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = "https://localhost:7222/", 
+        ValidAudience = "api1",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKey"))
+    };
+});
+
+
 builder.Services.AddAuthorization(options =>
 {
     // Política para administradores

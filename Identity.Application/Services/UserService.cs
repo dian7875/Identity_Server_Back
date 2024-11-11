@@ -93,14 +93,11 @@ public class UserService : IUserService
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: "https://localhost:5001",
+            issuer: "https://localhost:7222/",
             audience: "api1",
             claims: claims,
-            expires: DateTime.Now.AddMinutes(30),
+            expires: DateTime.UtcNow.AddDays(1),
             signingCredentials: creds);
-
-
-        // Retornar tanto el token como el SessionId
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
