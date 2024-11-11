@@ -56,7 +56,7 @@ public class UserService : IUserService
             Lastname1 = registerDto.Lastname1,
             Lastname2 = registerDto.Lastname2,
             PasswordHash = HashPassword(registerDto.Password),
-            RolId = registerDto.rolId,
+            RolId =2,
             DateRegistered = DateTime.UtcNow, 
             IsActive = true
         };
