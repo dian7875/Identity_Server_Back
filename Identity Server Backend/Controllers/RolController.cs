@@ -35,11 +35,11 @@ namespace Identity_Server_Backend.Controllers
         public async Task<IActionResult> GetAllRoles([FromQuery] string name = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             var roles = await _rolService.GetAllRoles(name, pageNumber, pageSize);
-            var totalCount = await _rolService.GetAllRoles(name); 
+            var totalCount = await _rolService.GetAllRoles(name);
 
             return Ok(new
             {
-                TotalCount = totalCount.Count(), 
+                TotalCount = totalCount.Count(),
                 page = pageNumber,
                 limit = pageSize,
                 Roles = roles
@@ -50,6 +50,10 @@ namespace Identity_Server_Backend.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateRol([FromBody] RolDto rolDto)
         {
+            if (rolDto.IsActive == false || rolDto.IsActive == null)
+            {
+                rolDto.IsActive = true;
+            }
             var rol = await _rolService.CreateRol(rolDto);
             return CreatedAtAction(nameof(GetRolById), new { id = rol.Id }, rol);
         }
@@ -65,6 +69,13 @@ namespace Identity_Server_Backend.Controllers
         public async Task<IActionResult> DeactivateRol(int id)
         {
             await _rolService.DeactivateRol(id); 
+            return NoContent();
+        }
+
+        [HttpPatch("reactivate/{id}")]
+        public async Task<IActionResult> ReactivateRol(int id)
+        {
+            await _rolService.ReactivateRol(id);
             return NoContent();
         }
     }

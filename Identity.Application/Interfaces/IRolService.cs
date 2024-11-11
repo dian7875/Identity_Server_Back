@@ -14,5 +14,6 @@ namespace Identity.Application.Interfaces
         Task<RolResponseDto> CreateRol(RolDto rolDto);
         Task UpdateRol(int id, RolDto rolDto);
         Task DeactivateRol(int id);
+        Task ReactivateRol(int id);
     }
 }
