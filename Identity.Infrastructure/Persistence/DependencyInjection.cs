@@ -13,8 +13,17 @@ namespace Identity.Infrastructure.Persistence
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            // Obtener la cadena de conexión desde las variables de entorno
+            var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new Exception("La cadena de conexión no está configurada en las variables de entorno.");
+            }
+
+            // Configurar el DbContext usando la cadena de conexión de las variables de entorno
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(connectionString));
 
             return services;
         }

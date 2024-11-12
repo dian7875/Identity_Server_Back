@@ -9,7 +9,9 @@ namespace MyApp.Infrastructure.Helpers
 {
     public class JwtHelper
     {
-        private static readonly string SecretKey = "YourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKey";
+        private static readonly string SecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+                                                  ?? throw new Exception("JWT_SECRET_KEY no está configurada en las variables de entorno.");
+
 
         public static bool ValidateToken(string token)
         {

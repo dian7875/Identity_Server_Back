@@ -1,4 +1,5 @@
 
+using DotNetEnv;
 using Identity.Application.Interfaces;
 using Identity.Application.Services;
 using Identity.Infrastructure.Persistence;
@@ -13,8 +14,17 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+Env.Load();
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+builder.WebHost.UseUrls($"https://0.0.0.0:{port}");
 
 
+var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+if (string.IsNullOrEmpty(secretKey))
+{
+    throw new Exception("JWT_SECRET_KEY no está configurada en las variables de entorno.");
+}
 
 builder.Services.AddCors(options =>
 {
@@ -130,9 +140,10 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = "https://localhost:7222/",
         ValidAudience = "api1",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKey"))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
     };
 });
+
 
 
 builder.Services.AddAuthorization(options =>
@@ -171,20 +182,25 @@ using (var scope = app.Services.CreateScope())
 }
 
 
+if (app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
+var environment = app.Environment.EnvironmentName;
+Console.WriteLine($"Current Environment: {environment}");
+
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
+    Console.WriteLine("Swagger está habilitado.");
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();

@@ -91,7 +91,14 @@ public class UserService : IUserService
          new Claim("cedula", user.Cedula ?? "")
     };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKey"));
+        var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+
+        if (string.IsNullOrEmpty(secretKey))
+        {
+            throw new Exception("La clave secreta no está configurada.");
+        }
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
