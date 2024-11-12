@@ -51,7 +51,8 @@ namespace Identity.Application.Services
                 {
                     Id = r.Id,
                     Name = r.Name,
-                    Description = r.Description
+                    Description = r.Description,
+                    IsActive = r.IsActive
                 })
                 .ToListAsync();
 

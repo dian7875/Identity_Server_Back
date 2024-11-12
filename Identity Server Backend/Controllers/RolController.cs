@@ -50,10 +50,6 @@ namespace Identity_Server_Backend.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateRol([FromBody] RolDto rolDto)
         {
-            if (rolDto.IsActive == false || rolDto.IsActive == null)
-            {
-                rolDto.IsActive = true;
-            }
             var rol = await _rolService.CreateRol(rolDto);
             return CreatedAtAction(nameof(GetRolById), new { id = rol.Id }, rol);
         }
