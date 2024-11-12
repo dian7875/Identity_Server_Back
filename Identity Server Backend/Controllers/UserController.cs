@@ -21,7 +21,7 @@ namespace Identity_Server_Backend.Controllers
         }
 
 
-        [Authorize(Policy = "RequireClientRole")]
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
@@ -59,7 +59,7 @@ namespace Identity_Server_Backend.Controllers
         }
 
 
-        [Authorize(Policy = "RequireClientRole")]
+        [Authorize(Policy = "RequireAdminRole")]
         //Crear usuario 
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] RegisterDto registerDto)
@@ -84,7 +84,7 @@ namespace Identity_Server_Backend.Controllers
             }
         }
 
-        [Authorize(Policy = "RequireClientRole")]
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UserEditDto userEditDto)
         {
@@ -107,7 +107,7 @@ namespace Identity_Server_Backend.Controllers
                 return StatusCode(500, "Error interno del servidor.");
             }
         }
-        [Authorize(Policy = "RequireClientRole")]
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
@@ -126,7 +126,7 @@ namespace Identity_Server_Backend.Controllers
             }
         }
 
-        [Authorize(Policy = "RequireClientRole")]
+        [Authorize(Policy = "RequireAdminRole")]
 
         [HttpGet("profile")]
         public async Task<IActionResult> GetUserProfile()
@@ -182,7 +182,7 @@ namespace Identity_Server_Backend.Controllers
             }
         }
 
-        [Authorize(Policy = "RequireClientRole")]
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpGet("statistics/summary")]
         public async Task<IActionResult> GetStatistics()
         {

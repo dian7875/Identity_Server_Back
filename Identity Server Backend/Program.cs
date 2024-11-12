@@ -109,10 +109,7 @@ builder.Services.AddAuthentication(options =>
                 context.Fail("Token no recibido.");
                 return Task.CompletedTask;
             }
-
-            Console.WriteLine("Token recibido: " + token);
-
-            if (JwtHelper.ValidateToken(token)) 
+            if (JwtHelper.ValidateToken(token))
             {
                 context.Token = token;
             }
@@ -120,18 +117,18 @@ builder.Services.AddAuthentication(options =>
             {
                 context.Fail("Token no válido.");
             }
-
             return Task.CompletedTask;
         }
     };
 
+    // TokenValidationParameters para la validación final
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "https://localhost:7222/", 
+        ValidIssuer = "https://localhost:7222/",
         ValidAudience = "api1",
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKey"))
     };
