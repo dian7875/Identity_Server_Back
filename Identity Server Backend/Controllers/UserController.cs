@@ -3,6 +3,7 @@ using Identity.Application.DTOs.User;
 using Identity.Application.Interfaces;
 using Identity.Application.Services;
 using Identity.Domain.entities;
+using IdentityServer4.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -126,7 +127,7 @@ namespace Identity_Server_Backend.Controllers
             }
         }
 
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize]
 
         [HttpGet("profile")]
         public async Task<IActionResult> GetUserProfile()
@@ -145,14 +146,16 @@ namespace Identity_Server_Backend.Controllers
                 return NotFound();
             }
 
-           
-            HttpContext.Response.Cookies.Append("UserProfile", "some_value", new CookieOptions
+            var newToken = _userService.GenerateJwtToken(cedula, userProfile.Name, userProfile.Email, userProfile.Role);
+
+            var cookieOptions = new CookieOptions
             {
-                HttpOnly = true, 
+                HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict, 
-                Expires = DateTimeOffset.UtcNow.AddHours(1) 
-            });
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddHours(1)
+            };
+            HttpContext.Response.Cookies.Append("jwt", newToken, cookieOptions);
 
             return Ok(userProfile);
         }

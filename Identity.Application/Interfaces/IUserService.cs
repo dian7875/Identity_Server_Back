@@ -26,5 +26,6 @@ namespace Identity.Application.Interfaces
         //desactivar y activar
         Task DeactivateUserAsync(int id);
         Task ReactivateUserAsync(int id);
+        string GenerateJwtToken(string cedula, string name, string email, string role);
     }
 }

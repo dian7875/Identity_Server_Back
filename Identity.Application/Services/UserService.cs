@@ -67,32 +67,17 @@ public class UserService : IUserService
         await _context.SaveChangesAsync();
         return user;
     }
-    public async Task<string> LoginUser(LoginDto loginDto)
+    public string GenerateJwtToken(string cedula, string name, string email, string role)
     {
-        // Buscar al usuario por cédula y cargar el rol relacionado
-        var user = await _context.Users
-            .Include(u => u.Rol) // Incluir el rol relacionado
-            .FirstOrDefaultAsync(u => u.Cedula == loginDto.Cedula);
-
-        if (user == null) return null;
-
-        // Validar la contraseña
-        if (user.PasswordHash != HashPassword(loginDto.Password))
-        {
-            return null;
-        }
-
-        // Crear los claims, incluyendo el nombre del rol
         var claims = new[]
         {
-        new Claim(ClaimTypes.Name, user.Name ?? ""),
-        new Claim(ClaimTypes.Email, user.Email ?? ""),
-        new Claim(ClaimTypes.Role, user.Rol?.Name ?? ""),
-         new Claim("cedula", user.Cedula ?? "")
+        new Claim(ClaimTypes.Name, name),
+        new Claim(ClaimTypes.Email, email),
+        new Claim(ClaimTypes.Role, role),
+        new Claim("cedula", cedula)
     };
 
         var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
-
         if (string.IsNullOrEmpty(secretKey))
         {
             throw new Exception("La clave secreta no está configurada.");
@@ -107,9 +92,25 @@ public class UserService : IUserService
             claims: claims,
             expires: DateTime.UtcNow.AddDays(1),
             signingCredentials: creds);
+
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-    
+
+
+    public async Task<string> LoginUser(LoginDto loginDto)
+    {
+        var user = await _context.Users
+            .Include(u => u.Rol)
+            .FirstOrDefaultAsync(u => u.Cedula == loginDto.Cedula);
+
+        if (user == null || user.PasswordHash != HashPassword(loginDto.Password))
+        {
+            return null;
+        }
+
+        return GenerateJwtToken(user.Cedula, user.Name ?? "", user.Email ?? "", user.Rol?.Name ?? "");
+    }
+
 
     public async Task<UserProfileDto> GetUserProfileAsync(string cedula)
     {
