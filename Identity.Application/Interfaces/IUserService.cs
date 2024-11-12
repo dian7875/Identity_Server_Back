@@ -20,6 +20,7 @@ namespace Identity.Application.Interfaces
         Task UpdateUserAsync(int id, UserEditDto userEditDto);
         Task DeleteUserAsync(int id);
         Task UpdateUserRoleAsync(int userId, int roleId);
+        Task<UserProfileDto> GetUserProfileAsync(string cedula);
         Task<StatisticsDto> GetStatisticsAsync();
         Task<IEnumerable<RoleUserCountDto>> GetUserCountPerRoleAsync();
         //desactivar y activar

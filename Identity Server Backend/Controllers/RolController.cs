@@ -20,8 +20,7 @@ namespace Identity_Server_Backend.Controllers
             _rolService = rolService;
         }
 
-
-        [Authorize]
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRolById(int id)
         {
@@ -30,7 +29,7 @@ namespace Identity_Server_Backend.Controllers
             return Ok(rol);
         }
 
-        [Authorize]
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpGet]
         public async Task<IActionResult> GetAllRoles([FromQuery] string name = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
@@ -46,7 +45,7 @@ namespace Identity_Server_Backend.Controllers
             });
         }
 
-
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpPost]
         public async Task<IActionResult> CreateRol([FromBody] RolDto rolDto)
         {
@@ -54,6 +53,7 @@ namespace Identity_Server_Backend.Controllers
             return CreatedAtAction(nameof(GetRolById), new { id = rol.Id }, rol);
         }
 
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpPatch("{id}")]
         public async Task<IActionResult> UpdateRol(int id, [FromBody] RolDto rolDto)
         {
@@ -61,6 +61,7 @@ namespace Identity_Server_Backend.Controllers
             return NoContent();
         }
 
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpPatch("deactivate/{id}")]
         public async Task<IActionResult> DeactivateRol(int id)
         {
@@ -68,6 +69,7 @@ namespace Identity_Server_Backend.Controllers
             return NoContent();
         }
 
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpPatch("reactivate/{id}")]
         public async Task<IActionResult> ReactivateRol(int id)
         {

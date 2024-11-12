@@ -17,6 +17,8 @@ namespace Identity.Infrastructure.Persistence
             : base(options) { }
         public DbSet<User> Users { get; set; }
         public DbSet<Rol> Roles { get; set; }
+       
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,22 +38,6 @@ namespace Identity.Infrastructure.Persistence
             // Seed data para usuarios
             var passwordHasher = new PasswordHasher<User>();
 
-            var user1 = new User
-            {
-                Id = 1,
-                Cedula = "504520162",
-                Name = "Akion",
-                Lastname1 = "Cheng",
-                Lastname2 = "Jimenez",
-                PasswordHash = HashPassword("akion123"),
-                Email = "achengjimenezprimaria@gmail.com",
-                Phone = "83541298",
-                Address = "75 metros sur templo evangelico la pz",
-                DateRegistered = DateTime.UtcNow,
-                IsActive = true,
-                RolId = 2 
-            };
-        ;
 
             var user2 = new User
             {
@@ -70,7 +56,7 @@ namespace Identity.Infrastructure.Persistence
             };
             
 
-            modelBuilder.Entity<User>().HasData(user1, user2);
+            modelBuilder.Entity<User>().HasData( user2);
         }
         private string HashPassword(string password)
         {

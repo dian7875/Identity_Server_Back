@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using Identity.Application.DTOs.User;
 using Identity.Application.DTOs.Rol;
+using static UserService;
 
 
 
@@ -86,7 +87,8 @@ public class UserService : IUserService
         {
         new Claim(ClaimTypes.Name, user.Name ?? ""),
         new Claim(ClaimTypes.Email, user.Email ?? ""),
-        new Claim(ClaimTypes.Role, user.Rol?.Name ?? "")
+        new Claim(ClaimTypes.Role, user.Rol?.Name ?? ""),
+         new Claim("cedula", user.Cedula ?? "")
     };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKeyYourSecretKey"));
@@ -99,6 +101,28 @@ public class UserService : IUserService
             expires: DateTime.UtcNow.AddDays(1),
             signingCredentials: creds);
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+    
+
+    public async Task<UserProfileDto> GetUserProfileAsync(string cedula)
+    {
+        
+        var user = await _context.Users
+            .Where(u => u.Cedula == cedula)
+            .Select(u => new UserProfileDto
+            {
+             
+                Name = u.Name,
+                Cedula = u.Cedula,
+                Email = u.Email,
+                Phone = u.Phone,
+                Address = u.Address,
+                Lastname = u.Lastname1,
+                Role = u.Rol.Name // Asegúrate de que Role esté relacionado y sea accesible
+            })
+            .FirstOrDefaultAsync();
+
+        return user;
     }
 
 

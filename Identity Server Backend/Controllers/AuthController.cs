@@ -39,7 +39,18 @@ namespace Identity_Server_Backend.Controllers
             Response.Cookies.Append("jwt", token, cookieOptions);
             return Ok(new { Token = token });
         }
+
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            // Elimina la cookie que contiene el token JWT
+            HttpContext.Response.Cookies.Delete("jwt");
+
+            return Ok(new { message = "Logout exitoso." });
+        }
     }
+  
 }
 
 

@@ -20,6 +20,8 @@ namespace Identity_Server_Backend.Controllers
             _userService = userService;
         }
 
+
+        [Authorize(Policy = "RequireClientRole")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
@@ -42,7 +44,7 @@ namespace Identity_Server_Backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllUsers([FromQuery] string cedula = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 5)
         {
-       
+
             var totalCount = await _userService.GetAllUsers(cedula);
 
             var usuarios = await _userService.GetAllUsers(cedula, pageNumber, pageSize);
@@ -57,7 +59,7 @@ namespace Identity_Server_Backend.Controllers
         }
 
 
-
+        [Authorize(Policy = "RequireClientRole")]
         //Crear usuario 
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] RegisterDto registerDto)
@@ -82,6 +84,7 @@ namespace Identity_Server_Backend.Controllers
             }
         }
 
+        [Authorize(Policy = "RequireClientRole")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UserEditDto userEditDto)
         {
@@ -104,6 +107,7 @@ namespace Identity_Server_Backend.Controllers
                 return StatusCode(500, "Error interno del servidor.");
             }
         }
+        [Authorize(Policy = "RequireClientRole")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
@@ -122,19 +126,39 @@ namespace Identity_Server_Backend.Controllers
             }
         }
 
+        [Authorize(Policy = "RequireClientRole")]
+
         [HttpGet("profile")]
-        public IActionResult GetUserProfile()
+        public async Task<IActionResult> GetUserProfile()
         {
-            
-            var profile = new
+            // Obtén la cédula desde los claims del usuario autenticado
+            var cedula = User.Claims.FirstOrDefault(c => c.Type == "cedula")?.Value;
+
+            if (string.IsNullOrEmpty(cedula))
             {
-                Name = User.Identity.Name,
-                Email = User.FindFirst("email")?.Value,
-                Lastname = $"{User.FindFirst("Lastname1")?.Value} {User.FindFirst("Lastname2")?.Value}"
-            };
-            return Ok(profile);
+                return BadRequest("Cédula no encontrada en los claims del usuario.");
+            }
+
+            var userProfile = await _userService.GetUserProfileAsync(cedula);
+            if (userProfile == null)
+            {
+                return NotFound();
+            }
+
+           
+            HttpContext.Response.Cookies.Append("UserProfile", "some_value", new CookieOptions
+            {
+                HttpOnly = true, 
+                Secure = true,
+                SameSite = SameSiteMode.Strict, 
+                Expires = DateTimeOffset.UtcNow.AddHours(1) 
+            });
+
+            return Ok(userProfile);
         }
 
+
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpPut("{id}/role")]
         public async Task<IActionResult> UpdateUserRole(int id, [FromBody] UpdateUserRoleDto updateRoleDto)
         {
@@ -146,7 +170,7 @@ namespace Identity_Server_Backend.Controllers
             try
             {
                 await _userService.UpdateUserRoleAsync(id, updateRoleDto.RoleId);
-                return NoContent(); 
+                return NoContent();
             }
             catch (KeyNotFoundException ex)
             {
@@ -158,6 +182,7 @@ namespace Identity_Server_Backend.Controllers
             }
         }
 
+        [Authorize(Policy = "RequireClientRole")]
         [HttpGet("statistics/summary")]
         public async Task<IActionResult> GetStatistics()
         {
@@ -172,6 +197,7 @@ namespace Identity_Server_Backend.Controllers
             }
         }
 
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpGet("statistics/users-per-role")]
         public async Task<IActionResult> GetUserCountPerRole()
         {
@@ -186,6 +212,8 @@ namespace Identity_Server_Backend.Controllers
             }
         }
 
+
+        [Authorize(Policy = "RequireAdminRole")]
         //activar y desactivar 
         [HttpPut("{id}/desactivate")]
         public async Task<IActionResult> DeactivateUser(int id)
@@ -204,6 +232,8 @@ namespace Identity_Server_Backend.Controllers
                 return StatusCode(500, "Error interno del servidor.");
             }
         }
+
+        [Authorize(Policy = "RequireAdminRole")]
 
         [HttpPut("{id}/reactivate")]
         public async Task<IActionResult> ReactivateUser(int id)
