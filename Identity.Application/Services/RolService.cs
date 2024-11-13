@@ -44,7 +44,7 @@ namespace Identity.Application.Services
             }
 
 
-            var totalCount = await query.CountAsync(); 
+            int totalCount = await query.CountAsync(); 
 
             var roles = await query
                 .Skip((pageNumber - 1) * pageSize) 
