@@ -33,12 +33,11 @@ namespace Identity_Server_Backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllRoles([FromQuery] string name = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var roles = await _rolService.GetAllRoles(name, pageNumber, pageSize);
-            var totalCount = await _rolService.GetAllRoles(name);
+            var (roles, totalCount) = await _rolService.GetAllRoles(name, pageNumber, pageSize);
 
             return Ok(new
             {
-                TotalCount = totalCount.Count(),
+                TotalCount = totalCount,
                 page = pageNumber,
                 limit = pageSize,
                 Roles = roles

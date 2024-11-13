@@ -33,7 +33,8 @@ namespace Identity.Application.Services
             };
         }
 
-        public async Task<IEnumerable<RolResponseDto>> GetAllRoles(string name = null, int pageNumber = 1, int pageSize = 10)
+        public async Task<(List<RolResponseDto> Roles, int TotalCount)> GetAllRoles(string name = null, int pageNumber = 1, int pageSize = 10)
+
         {
             var query = _context.Roles.AsQueryable();
 
@@ -41,6 +42,7 @@ namespace Identity.Application.Services
             {
                 query = query.Where(r => r.Name.Contains(name));
             }
+
 
             var totalCount = await query.CountAsync(); 
 
@@ -56,7 +58,7 @@ namespace Identity.Application.Services
                 })
                 .ToListAsync();
 
-            return roles; 
+            return (Roles: roles, TotalCount: totalCount); 
         }
 
 
