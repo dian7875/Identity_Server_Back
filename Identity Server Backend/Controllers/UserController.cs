@@ -60,7 +60,7 @@ namespace Identity_Server_Backend.Controllers
         }
 
 
-        [Authorize(Policy = "RequireAdminRole")]
+        //[Authorize(Policy = "RequireAdminRole")]
         //Crear usuario 
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] RegisterDto registerDto)
@@ -255,5 +255,15 @@ namespace Identity_Server_Backend.Controllers
                 return StatusCode(500, "Error interno del servidor.");
             }
         }
+
+        [Authorize] 
+        [HttpGet("user-info")]
+        public IActionResult GetUserInfo()
+        {
+            var cedula = User.FindFirst("cedula")?.Value;
+
+            return Ok(new { Cedula = cedula });
+        }
+
     }
 }
