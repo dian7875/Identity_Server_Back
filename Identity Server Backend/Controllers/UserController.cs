@@ -46,13 +46,12 @@ namespace Identity_Server_Backend.Controllers
         public async Task<IActionResult> GetAllUsers([FromQuery] string cedula = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 5)
         {
 
-            var totalCount = await _userService.GetAllUsers(cedula);
+            var (usuarios, totalCount) = await _userService.GetAllUsers(cedula, pageNumber, pageSize);
 
-            var usuarios = await _userService.GetAllUsers(cedula, pageNumber, pageSize);
 
             return Ok(new
             {
-                TotalCount = totalCount.Count(),
+                TotalCount = totalCount,
                 Page = pageNumber,
                 Limit = pageSize,
                 Usuarios = usuarios

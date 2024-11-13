@@ -141,8 +141,9 @@ public class UserService : IUserService
         return user;
     }
 
-    public async Task<IEnumerable<UsersResponseDTO>> GetAllUsers(string cedula = null, int pageNumber = 1, int pageSize = 5)
-    {
+    public async Task<(List<UsersResponseDTO> Users, int TotalCount)> GetAllUsers(string cedula = null, int pageNumber = 1, int pageSize = 5)
+  
+        {
         var query = _context.Users.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(cedula))
@@ -151,6 +152,7 @@ public class UserService : IUserService
         }
 
         int totalCount = await query.CountAsync();
+
 
         var users = await query
             .Skip((pageNumber - 1) * pageSize)
@@ -171,7 +173,7 @@ public class UserService : IUserService
             })
             .ToListAsync();
 
-        return users;
+        return (Users: users, TotalCount: totalCount);
     }
 
 

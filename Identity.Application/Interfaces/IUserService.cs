@@ -13,7 +13,7 @@ namespace Identity.Application.Interfaces
     public interface IUserService
     {
         Task<User> GetUserByIdAsync(int id);
-        Task<IEnumerable<UsersResponseDTO>> GetAllUsers(string cedula = null, int pageNumber = 1, int pageSize = 5);
+        Task<(List<UsersResponseDTO> Users, int TotalCount)> GetAllUsers(string cedula = null, int pageNumber = 1, int pageSize = 5);
 
         Task<User> RegisterUser(RegisterDto registerDto);
         Task<string> LoginUser(LoginDto loginDto);
