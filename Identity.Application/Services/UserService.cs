@@ -150,6 +150,8 @@ public class UserService : IUserService
             query = query.Where(u => u.Cedula.Contains(cedula));
         }
 
+        int totalCount = await query.CountAsync();
+
         var users = await query
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
