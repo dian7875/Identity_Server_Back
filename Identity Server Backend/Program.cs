@@ -36,7 +36,8 @@ builder.Services.AddCors(options =>
             "https://eshop-loggin.vercel.app",
             "https://dashboard-frontend-kohl.vercel.app",
             "http://localhost:5174",
-            "http://localhost:5173"
+            "http://localhost:5173",
+            "https://zcz17ld0-5173.use2.devtunnels.ms"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
