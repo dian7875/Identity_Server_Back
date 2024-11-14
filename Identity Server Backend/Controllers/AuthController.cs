@@ -34,7 +34,9 @@ namespace Identity_Server_Backend.Controllers
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
-                Expires = DateTime.Now.AddHours(24)
+                Expires = DateTime.Now.AddHours(24),
+                Domain = ".vercel.app",
+                Path = "/"
             };
             Response.Cookies.Append("jwt", token, cookieOptions);
             return Ok(new { Token = token });
