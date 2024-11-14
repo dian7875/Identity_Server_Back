@@ -131,6 +131,8 @@ builder.Services.AddAuthentication(options =>
         }
     };
 
+
+
     // TokenValidationParameters para la validación final
     options.TokenValidationParameters = new TokenValidationParameters
     {
